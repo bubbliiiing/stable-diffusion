@@ -1,8 +1,8 @@
 ## Stable Diffusion模型在pytorch当中的实现
 ---
 
-该库参考于https://github.com/CompVis/stable-diffusion，删去了一些配置文件，与一些暂时无用的文件夹。并在必要的地方添加了一些中文注释，以便于理解。  
-该库并未调整ldm文件夹的结构，以免产生与其它Stable Diffusion仓库的Gap。  
+该库参考于https://github.com/CompVis/stable-diffusion  
+删去了一些配置文件，与一些暂时无用的文件夹。并在必要的地方添加了一些中文注释，以便于理解。该库并未调整ldm文件夹的结构，以免产生与其它Stable Diffusion仓库的Gap。  
 后续会陆续增加img2img、训练、controlnet等。  
 
 ## 目录
@@ -34,11 +34,11 @@ torch==1.13.1
 待办
 
 ## 预测步骤
-### a、使用预训练权重
+### a、txt2img
 1. 下载完库后解压，在百度网盘下载权值，放入model_data，运行predict.py.
 2. 根据需求修改predict.py文件中的prompt以实现不同目标的生成。
 
-### b、使用自己训练的权重 
+### b、img2img 
 待办
 
 ## Reference
