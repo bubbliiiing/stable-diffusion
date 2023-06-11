@@ -96,10 +96,12 @@ class FrozenCLIPEmbedder(AbstractEncoder):
                  freeze=True, layer="last", layer_idx=None):  # clip-vit-base-patch32
         super().__init__()
         assert layer in self.LAYERS
-        self.tokenizer = CLIPTokenizer.from_pretrained(version)
-        self.transformer = CLIPTextModel.from_pretrained(version)
-        self.device = device
-        self.max_length = max_length
+        # 定义文本的tokenizer和transformer
+        self.tokenizer      = CLIPTokenizer.from_pretrained(version)
+        self.transformer    = CLIPTextModel.from_pretrained(version)
+        self.device         = device
+        self.max_length     = max_length
+        # 冻结模型参数
         if freeze:
             self.freeze()
         self.layer = layer
@@ -110,15 +112,18 @@ class FrozenCLIPEmbedder(AbstractEncoder):
 
     def freeze(self):
         self.transformer = self.transformer.eval()
-        #self.train = disabled_train
+        # self.train = disabled_train
         for param in self.parameters():
             param.requires_grad = False
 
     def forward(self, text):
-        batch_encoding = self.tokenizer(text, truncation=True, max_length=self.max_length, return_length=True,
+        # 对输入的图片进行分词并编码，padding直接padding到77的长度。
+        batch_encoding  = self.tokenizer(text, truncation=True, max_length=self.max_length, return_length=True,
                                         return_overflowing_tokens=False, padding="max_length", return_tensors="pt")
-        tokens = batch_encoding["input_ids"].to(self.device)
-        outputs = self.transformer(input_ids=tokens, output_hidden_states=self.layer=="hidden")
+        # 拿出input_ids然后传入transformer进行特征提取。
+        tokens          = batch_encoding["input_ids"].to(self.device)
+        outputs         = self.transformer(input_ids=tokens, output_hidden_states=self.layer=="hidden")
+        # 取出所有的token
         if self.layer == "last":
             z = outputs.last_hidden_state
         elif self.layer == "pooled":
