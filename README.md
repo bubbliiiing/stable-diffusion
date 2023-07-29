@@ -24,6 +24,12 @@ https://ommer-lab.com/research/latent-diffusion-models/
 ## 所需环境
 torch==1.13.1     
 推荐torch==1.13.1，毕竟其它stable diffusion大多**大于或者等于这个版本**。
+```
+pip install -r requirements.txt
+# 为了加速可安装xformers，该版本与torch==1.13.1适配。
+pip install xformers==0.0.16
+```
+当然也推荐使用torch>=2.0.0
 
 ## 文件下载
 训练所需的权值可在百度网盘中下载。  
@@ -39,7 +45,9 @@ torch==1.13.1
 2. 根据需求修改predict.py文件中的prompt以实现不同目标的生成。
 
 ### b、img2img 
-待办
+1. 下载完库后解压，在百度网盘下载权值，放入model_data.
+2. 修改其中的image_path与denoise_strength。
+3. 根据需求修改predict.py文件中的prompt以实现不同目标的生成。
 
 ## Reference
 https://github.com/lllyasviel/ControlNet   
