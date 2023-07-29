@@ -177,6 +177,7 @@ class CrossAttention(nn.Module):
                 sim = einsum('b i d, b j d -> b i j', q, k) * self.scale
         else:
             sim = einsum('b i d, b j d -> b i j', q, k) * self.scale
+        sim = sim.to(x.dtype)
         
         del q, k
     

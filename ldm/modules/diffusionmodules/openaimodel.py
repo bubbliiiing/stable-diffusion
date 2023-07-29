@@ -743,12 +743,13 @@ class UNetModel(nn.Module):
         :param y: an [N] Tensor of labels, if class-conditional.
         :return: an [N x C x ...] Tensor of outputs.
         """
+        self.dtype = self.time_embed[0].weight.dtype
         assert (y is not None) == (
             self.num_classes is not None
         ), "must specify y if and only if the model is class-conditional"
         hs      = []
         # 用于计算当前采样时间t的embedding
-        t_emb   = timestep_embedding(timesteps, self.model_channels, repeat_only=False)
+        t_emb   = timestep_embedding(timesteps, self.model_channels, repeat_only=False).type(self.dtype)
         emb     = self.time_embed(t_emb)
 
         if self.num_classes is not None:
@@ -768,7 +769,7 @@ class UNetModel(nn.Module):
         for module in self.output_blocks:
             h = th.cat([h, hs.pop()], dim=1)
             h = module(h, emb, context)
-        h = h.type(x.dtype)
+        h = h.type(self.dtype)
         # 输出模块
         if self.predict_codebook_ids:
             return self.id_predictor(h)
