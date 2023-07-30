@@ -35,7 +35,7 @@ seed        = 12345
 # eta
 eta         = 0
 # denoise强度，for img2img
-denoise_strength = 1.0
+denoise_strength = 1.00
 
 # ----------------------- #
 #   提示词相关参数
@@ -50,6 +50,9 @@ n_prompt    = "longbody, lowres, bad anatomy, bad hands, missing fingers, extra 
 scale       = 9
 # img2img使用，如果不想img2img这设置为None。
 image_path  = None
+# inpaint使用，如果不想inpaint这设置为None；inpaint使用需要结合img2img。
+# 注意mask图和原图需要一样大
+mask_path   = None
 
 # ----------------------- #
 #   保存路径
@@ -69,6 +72,15 @@ if sd_fp16:
 if image_path is not None:
     img = Image.open(image_path)
     img = crop_and_resize(img, input_shape[0], input_shape[1])
+
+if mask_path is not None:
+    mask = Image.open(mask_path).convert("L")
+    mask = crop_and_resize(mask, input_shape[0], input_shape[1])
+    mask = np.array(mask)
+    mask = mask.astype(np.float32) / 255.0
+    mask = mask[None,None]
+    mask[mask < 0.5] = 0
+    mask[mask >= 0.5] = 1
 
 with torch.no_grad():
     if seed == -1:
@@ -90,10 +102,19 @@ with torch.no_grad():
             model.first_stage_model = model.first_stage_model.float()
 
         ddim_sampler.make_schedule(ddim_steps, ddim_eta=eta, verbose=True)
-        t_enc = min(int(denoise_strength * ddim_steps), ddim_steps - 1)
-        z = model.get_first_stage_encoding(model.encode_first_stage(img))
-        z_enc = ddim_sampler.stochastic_encode(z, torch.tensor([t_enc] * num_samples).to(model.device))
-        z_enc = z_enc.half() if sd_fp16 else z_enc.float()
+        t_enc   = min(int(denoise_strength * ddim_steps), ddim_steps - 1)
+        # 获得VAE编码后的隐含层向量
+        z       = model.get_first_stage_encoding(model.encode_first_stage(img))
+        x0      = z
+
+        # 获得加噪后的隐含层向量
+        z_enc   = ddim_sampler.stochastic_encode(z, torch.tensor([t_enc] * num_samples).to(model.device))
+        z_enc   = z_enc.half() if sd_fp16 else z_enc.float()
+
+    if mask_path is not None:
+        mask = torch.from_numpy(mask).to(model.device)
+        mask = torch.nn.functional.interpolate(mask, size=z_enc.shape[-2:])
+        mask = 1 - mask
 
     # ----------------------- #
     #   获得编码后的prompt
@@ -104,7 +125,7 @@ with torch.no_grad():
     shape   = (4, H // 8, W // 8)
 
     if image_path is not None:
-        samples = ddim_sampler.decode(z_enc, cond, t_enc, unconditional_guidance_scale=scale, unconditional_conditioning=un_cond)
+        samples = ddim_sampler.decode(z_enc, cond, t_enc, mask, x0, unconditional_guidance_scale=scale, unconditional_conditioning=un_cond)
     else:
         # ----------------------- #
         #   进行采样

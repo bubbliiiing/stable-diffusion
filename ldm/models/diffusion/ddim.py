@@ -150,7 +150,12 @@ class DDIMSampler(object):
             # 将步数拓展到bs维度
             ts      = torch.full((b,), step, device=device, dtype=torch.long)
 
-            # 用于进行局部的重建，对部分区域的隐向量进行mask。
+            # --------------------------------------------------------------------------------- #
+            #   替换特征的地方
+            #   用于进行局部的重建，对部分区域的隐向量进行mask。
+            #   对传入unet前的隐含层特征，我们利用mask将不重建的地方都替换成 原图加噪后的隐含层特征
+            #   self.model.q_sample用于对输入图片进行ts步数的加噪
+            # --------------------------------------------------------------------------------- #
             if mask is not None:
                 assert x0 is not None
                 img_orig = self.model.q_sample(x0, ts)  # TODO: deterministic forward pass?
@@ -258,9 +263,11 @@ class DDIMSampler(object):
                 extract_into_tensor(sqrt_one_minus_alphas_cumprod, t, x0.shape) * noise)
 
     @torch.no_grad()
-    def decode(self, x_latent, cond, t_start, unconditional_guidance_scale=1.0, unconditional_conditioning=None,
+    def decode(self, x_latent, cond, t_start, mask, x0, unconditional_guidance_scale=1.0, unconditional_conditioning=None,
                use_original_steps=False):
 
+        # 使用ddim的时间步
+        # 这里内容看起来很多，但是其实很少，本质上就是取了self.ddim_timesteps，然后把它reversed一下
         timesteps = np.arange(self.ddpm_num_timesteps) if use_original_steps else self.ddim_timesteps
         timesteps = timesteps[:t_start]
 
@@ -273,6 +280,19 @@ class DDIMSampler(object):
         for i, step in enumerate(iterator):
             index = total_steps - i - 1
             ts = torch.full((x_latent.shape[0],), step, device=x_latent.device, dtype=torch.long)
+            
+            # --------------------------------------------------------------------------------- #
+            #   替换特征的地方
+            #   用于进行局部的重建，对部分区域的隐向量进行mask。
+            #   对传入unet前的隐含层特征，我们利用mask将不重建的地方都替换成 原图加噪后的隐含层特征
+            #   self.model.q_sample用于对输入图片进行ts步数的加噪
+            # --------------------------------------------------------------------------------- #
+            if mask is not None:
+                assert x0 is not None
+                img_orig = self.model.q_sample(x0, ts)  # TODO: deterministic forward pass?
+                x_dec = img_orig * mask + (1. - mask) * x_dec
+
+            # 进行单次采样
             x_dec, _ = self.p_sample_ddim(x_dec, cond, ts, index=index, use_original_steps=use_original_steps,
                                           unconditional_guidance_scale=unconditional_guidance_scale,
                                           unconditional_conditioning=unconditional_conditioning)

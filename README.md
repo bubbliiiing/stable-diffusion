@@ -43,11 +43,166 @@ pip install xformers==0.0.16
 ### a、txt2img
 1. 下载完库后解压，在百度网盘下载权值，放入model_data，运行predict.py.
 2. 根据需求修改predict.py文件中的prompt以实现不同目标的生成。
+```
+# ----------------------- #
+#   使用的参数
+# ----------------------- #
+# config的地址
+config_path = "model_data/sd_v15.yaml"
+# 模型的地址
+model_path  = "model_data/v1-5-pruned-emaonly.safetensors"
+# fp16，可以加速与节省显存
+sd_fp16     = True
+vae_fp16    = True
+
+# ----------------------- #
+#   生成图片的参数
+# ----------------------- #
+# 生成的图像大小为input_shape，对于img2img会进行Centter Crop
+input_shape = [512, 512]
+# 一次生成几张图像
+num_samples = 1
+# 采样的步数
+ddim_steps  = 20
+# 采样的种子，为-1的话则随机。
+seed        = 12345
+# eta
+eta         = 0
+# denoise强度，for img2img
+denoise_strength = 1.00
+
+# ----------------------- #
+#   提示词相关参数
+# ----------------------- #
+# 提示词
+prompt      = "a cute cat, with yellow leaf, trees"
+# 正面提示词
+a_prompt    = "best quality, extremely detailed"
+# 负面提示词
+n_prompt    = "longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality"
+# 正负扩大倍数
+scale       = 9
+# img2img使用，如果不想img2img这设置为None。
+image_path  = None
+# inpaint使用，如果不想inpaint这设置为None；inpaint使用需要结合img2img。
+# 注意mask图和原图需要一样大
+mask_path   = None
+
+# ----------------------- #
+#   保存路径
+# ----------------------- #
+save_path   = "imgs/outputs_imgs"
+```
 
 ### b、img2img 
 1. 下载完库后解压，在百度网盘下载权值，放入model_data.
 2. 修改其中的image_path与denoise_strength。
 3. 根据需求修改predict.py文件中的prompt以实现不同目标的生成。
+```
+# ----------------------- #
+#   使用的参数
+# ----------------------- #
+# config的地址
+config_path = "model_data/sd_v15.yaml"
+# 模型的地址
+model_path  = "model_data/v1-5-pruned-emaonly.safetensors"
+# fp16，可以加速与节省显存
+sd_fp16     = True
+vae_fp16    = True
+
+# ----------------------- #
+#   生成图片的参数
+# ----------------------- #
+# 生成的图像大小为input_shape，对于img2img会进行Centter Crop
+input_shape = [512, 512]
+# 一次生成几张图像
+num_samples = 1
+# 采样的步数
+ddim_steps  = 20
+# 采样的种子，为-1的话则随机。
+seed        = 12345
+# eta
+eta         = 0
+# denoise强度，for img2img
+denoise_strength = 1.00
+
+# ----------------------- #
+#   提示词相关参数
+# ----------------------- #
+# 提示词
+prompt      = "a cute cat, with yellow leaf, trees"
+# 正面提示词
+a_prompt    = "best quality, extremely detailed"
+# 负面提示词
+n_prompt    = "longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality"
+# 正负扩大倍数
+scale       = 9
+# img2img使用，如果不想img2img这设置为None。
+image_path  = "imgs/test_imgs/cat.jpg"
+# inpaint使用，如果不想inpaint这设置为None；inpaint使用需要结合img2img。
+# 注意mask图和原图需要一样大
+mask_path   = None
+
+# ----------------------- #
+#   保存路径
+# ----------------------- #
+save_path   = "imgs/outputs_imgs"
+```
+
+### c、inpaint
+1. 下载完库后解压，在百度网盘下载权值，放入model_data.
+2. 修改其中的image_path，mask_path与denoise_strength。
+3. 根据需求修改predict.py文件中的prompt以实现不同目标的生成。
+```
+# ----------------------- #
+#   使用的参数
+# ----------------------- #
+# config的地址
+config_path = "model_data/sd_v15.yaml"
+# 模型的地址
+model_path  = "model_data/v1-5-pruned-emaonly.safetensors"
+# fp16，可以加速与节省显存
+sd_fp16     = True
+vae_fp16    = True
+
+# ----------------------- #
+#   生成图片的参数
+# ----------------------- #
+# 生成的图像大小为input_shape，对于img2img会进行Centter Crop
+input_shape = [512, 512]
+# 一次生成几张图像
+num_samples = 1
+# 采样的步数
+ddim_steps  = 20
+# 采样的种子，为-1的话则随机。
+seed        = 12345
+# eta
+eta         = 0
+# denoise强度，for img2img
+denoise_strength = 1.00
+
+# ----------------------- #
+#   提示词相关参数
+# ----------------------- #
+# 提示词
+prompt      = "a cute dog, with yellow leaf, trees"
+# 正面提示词
+a_prompt    = "best quality, extremely detailed"
+# 负面提示词
+n_prompt    = "longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality"
+# 正负扩大倍数
+scale       = 9
+# img2img使用，如果不想img2img这设置为None。
+image_path  = "imgs/test_imgs/cat.jpg"
+# inpaint使用，如果不想inpaint这设置为None；inpaint使用需要结合img2img。
+# 注意mask图和原图需要一样大
+mask_path   = "imgs/test_imgs/cat_mask.jpg"
+
+# ----------------------- #
+#   保存路径
+# ----------------------- #
+save_path   = "imgs/outputs_imgs"
+```
 
 ## Reference
 https://github.com/lllyasviel/ControlNet   
