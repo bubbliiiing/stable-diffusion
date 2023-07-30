@@ -115,6 +115,8 @@ with torch.no_grad():
         mask = torch.from_numpy(mask).to(model.device)
         mask = torch.nn.functional.interpolate(mask, size=z_enc.shape[-2:])
         mask = 1 - mask
+    else:
+        mask = None
 
     # ----------------------- #
     #   获得编码后的prompt
