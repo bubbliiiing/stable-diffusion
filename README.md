@@ -22,22 +22,47 @@
 https://ommer-lab.com/research/latent-diffusion-models/
 
 ## 所需环境
-torch==1.13.1     
-推荐torch==1.13.1，毕竟其它stable diffusion大多**大于或者等于这个版本**。
+torch==2.0.1   
+推荐torch==2.0.1，大多stable diffusion**基于这个版本**，webui也是。
 ```
+# 安装torch==2.0.1 
+conda install pytorch torchvision torchaudio pytorch-cuda=11.7 -c pytorch -c nvidia
+
+# 安装其它requirement
 pip install -r requirements.txt
-# 为了加速可安装xformers，该版本与torch==1.13.1适配。
-pip install xformers==0.0.16
+# 为了加速可安装xformers。
+pip install xformers==0.0.20
 ```
-当然也推荐使用torch>=2.0.0
 
 ## 文件下载
 训练所需的权值可在百度网盘中下载。  
-链接: 链接: https://pan.baidu.com/s/1p4e1-jcJJt3lCFZeMpYbwA    
-提取码: vry7    
+链接: https://pan.baidu.com/s/1p4e1-jcJJt3lCFZeMpYbwA    
+提取码: vry7     
+  
+Flickr8k数据集也可以在百度网盘中下载。  
+链接：https://pan.baidu.com/s/1I2FfEOhcBOupUazJP18ADQ    
+提取码：lx57   
+训练需要较高的显存要求，需要20G左右。   
 
 ## 训练步骤
-待办
+首先准备好训练数据集，数据集摆放格式为：
+```
+- datasets
+  - train
+    1.jpg
+    2.jpg
+    3.jpg
+    4.jpg
+    5.jpg
+    .......
+  - metadata.jsonl
+```
+metadata.jsonl中每一行代表一个样本，file_name代表样本的相对路径，text代表样本对应的文本。
+```
+{"file_name": "train/1000268201_693b08cb0e.jpg", "text": "A child in a pink dress is climbing up a set of stairs in an entry way ."}
+```
+
+可首先使用上述提供的Flickr8k数据集为例进行尝试。
 
 ## 预测步骤
 ### a、txt2img

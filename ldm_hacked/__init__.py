@@ -8,6 +8,8 @@ from PIL import Image
 
 from ldm.models.diffusion.ddim import DDIMSampler
 from ldm.util import instantiate_from_config
+from .datasets import MyDataset
+from .logger import ImageLogger
 
 LANCZOS = (Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.LANCZOS)
 

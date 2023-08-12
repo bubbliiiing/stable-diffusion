@@ -8,6 +8,8 @@ lfw/
 logs/
 model_data/
 .temp_map_out/
+image_log/
+lightning_logs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
